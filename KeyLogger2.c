@@ -6,6 +6,7 @@
 // Globale Variablen
 FILE *logfile;
 int keyCount = 0;           // Zähler für Tastenanschläge
+int enterCount = 0;         // Zähler für Entertastenanschläge
 bool running = true;        // Kontrolliert den Logging-Thread
 
 // Hier werden Tastenanschläge jede 5 Sec in die Log-Datei geschrieben (5 Sec nur als Beispiel)
@@ -18,11 +19,12 @@ void LogThread(void *param) {
         // Prüfen, ob 5 Sekunden (5.000 ms) vergangen sind
         if (currentTime - lastLogTime >= 5000) {
             // Anzahl der Tastenanschläge pro 5 Sec ins Log schreiben
-            fprintf(logfile, "Tastenanschläge: %d\n", keyCount);
+            fprintf(logfile, "Tastenanschläge: %d; Entertastenanschläge: %d\n", keyCount, enterCount);
             fflush(logfile); // Schreibt Puffer-Inhalt sofort in die Datei ohne zu warten, bis es voll ist und leert den Puffer 
 
             // Zähler zurücksetzen und letzte Log-Zeit aktualisieren
             keyCount = 0;
+            enterCount = 0;
             lastLogTime = currentTime;
         }
 
@@ -36,9 +38,17 @@ void LogThread(void *param) {
 // Hier wird geschaut, ob eine Taste gedrückt wurde 
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) { // Zeigt an, dass eine Eingabeaktion stattgefunden hat
+        // benötigt um HEX-Wert der gedrückten TAste zu ermitteln
+        KBDLLHOOKSTRUCT *pKeyBoard = (KBDLLHOOKSTRUCT *)lParam;
         // Wenn eine Taste gedrückt wird
         if (wParam == WM_KEYDOWN) {
-            keyCount++; // Zähler erhöhen
+            DWORD vkCode = pKeyBoard->vkCode;
+            // Wenn Enter gedrückt wird (HEX-Wert ist 8), wird dies extra gezählt
+            if(vkCode == 8){
+                enterCount++;  // Enterzähler erhöhen
+            }
+
+            keyCount++;       // Tastenzähler erhöhen
         }
     }
 
