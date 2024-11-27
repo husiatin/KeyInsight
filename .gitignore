@@ -1,0 +1,11 @@
+## Executable files
+*.exe
+
+## Log flies
+*.Log
+
+## Text files
+*.txt
+
+## VS Code folder
+.vscode/
