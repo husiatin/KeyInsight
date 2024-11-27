@@ -1,0 +1,3 @@
+Tastenanschläge: 6; Backspacetastenanschläge: 0; Entertastenanschläge: 0
+Tastenanschläge: 6; Backspacetastenanschläge: 3; Entertastenanschläge: 2
+Tastenanschläge: 0; Backspacetastenanschläge: 0; Entertastenanschläge: 0
