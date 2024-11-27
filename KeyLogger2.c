@@ -6,6 +6,8 @@
 // Globale Variablen
 FILE *logfile;
 int keyCount = 0;           // Zähler für Tastenanschläge
+int enterCount = 0;         // Zähler für Enter-Taste
+int backspaceCount = 0;     // Zähler für Backspace-Taste
 bool running = true;        // Kontrolliert den Logging-Thread
 
 // Hier werden Tastenanschläge jede 5 Sec in die Log-Datei geschrieben (5 Sec nur als Beispiel)
@@ -19,10 +21,14 @@ void LogThread(void *param) {
         if (currentTime - lastLogTime >= 5000) {
             // Anzahl der Tastenanschläge pro 5 Sec ins Log schreiben
             fprintf(logfile, "Tastenanschläge: %d\n", keyCount);
+            fprintf(logfile, "Enter-Tasten: %d\n", enterCount);
+            fprintf(logfile, "Backspace-Tasten: %d\n\n", backspaceCount);
             fflush(logfile); // Schreibt Puffer-Inhalt sofort in die Datei ohne zu warten, bis es voll ist und leert den Puffer 
 
             // Zähler zurücksetzen und letzte Log-Zeit aktualisieren
             keyCount = 0;
+            enterCount = 0;
+            backspaceCount = 0;
             lastLogTime = currentTime;
         }
 
@@ -38,11 +44,22 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
     if (nCode == HC_ACTION) { // Zeigt an, dass eine Eingabeaktion stattgefunden hat
         // Wenn eine Taste gedrückt wird
         if (wParam == WM_KEYDOWN) {
-            keyCount++; // Zähler erhöhen
+            // Zugriff auf die Tasteninformationen
+            KBDLLHOOKSTRUCT *pKeyInfo = (KBDLLHOOKSTRUCT *)lParam;
+
+            // Allgemeine Zählung für Tastenanschläge
+            keyCount++;
+
+            // Überprüfen, ob Enter oder Backspace gedrückt wurde
+            if (pKeyInfo->vkCode == VK_RETURN) {
+                enterCount++; // Enter-Taste
+            } else if (pKeyInfo->vkCode == VK_BACK) {
+                backspaceCount++; // Backspace-Taste
+            }
         }
     }
-
-    return CallNextHookEx(NULL, nCode, wParam, lParam); //  Sorgt dafür, dass das Ereignis an andere Hooks oder Standardverarbeitungsroutinen weitergegeben wird.
+    //  Sorgt dafür, dass das Ereignis an andere Hooks oder Standardverarbeitungsroutinen weitergegeben wird.
+    return CallNextHookEx(NULL, nCode, wParam, lParam); 
 }
 
 int main() {
