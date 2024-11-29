@@ -1,0 +1,11 @@
+## .vscode folder
+.vscode/
+
+## .log files
+*.log
+
+## .txt files
+*.txt
+
+## .exe files
+*.exe
