@@ -5,9 +5,9 @@
 #include <stdlib.h>
 
 // Constants
-#define DATA_SIZE 15
-#define ONE_MINUTE_MS 60000
-#define FIFTEEN_MINUTES_MS 900000
+#define DATA_SIZE 3            // Buffer size for 3 values
+#define ONE_MINUTE_MS 10000    // Simulated 1 minute = 10 seconds
+#define THREE_MINUTES_MS 30000 // Total runtime = 3 simulated minutes
 
 // Data structure for metrics
 typedef struct
@@ -21,11 +21,12 @@ typedef struct
 } MetricsData;
 
 // Global variables
-MetricsData metrics = {0}; // Main buffer
+MetricsData metrics = {0};
 bool running = true;
 float keyPressTimes[1000] = {0}; // Buffer for keypress intervals
 int keyPressIndex = 0;
 bool isBufferFull = false; // Tracks if the buffer has been fully cycled once
+DWORD startTime;           // Tracks the start time for the test
 
 // Function to calculate the average of an array
 float calculateAverage(float *data, int size)
@@ -85,7 +86,7 @@ void performCalculations()
     writeResultsToYaml(avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
 }
 
-// Logging thread to handle data storage for every minute and calculations every 15 minutes
+// Logging thread to handle data storage and calculations
 void LogThread(void *param)
 {
     DWORD lastLogTime = GetTickCount();
@@ -98,7 +99,14 @@ void LogThread(void *param)
     {
         DWORD currentTime = GetTickCount();
 
-        // Check if a minute has passed
+        // Stop the program after 3 simulated minutes
+        if (currentTime - startTime >= THREE_MINUTES_MS)
+        {
+            running = false;
+            break;
+        }
+
+        // Check if a simulated minute has passed
         if (currentTime - lastLogTime >= ONE_MINUTE_MS)
         {
             // Calculate average of keypress intervals
@@ -128,8 +136,8 @@ void LogThread(void *param)
             lastLogTime = currentTime;
         }
 
-        // Perform calculations every 15 minutes if buffer is full
-        if (currentTime - lastCalculationTime >= FIFTEEN_MINUTES_MS && isBufferFull)
+        // Perform calculations if buffer is full
+        if (isBufferFull && currentTime - lastCalculationTime >= THREE_MINUTES_MS)
         {
             performCalculations();
             lastCalculationTime = currentTime;
@@ -195,6 +203,9 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
+    // Track start time for testing
+    startTime = GetTickCount();
+
     // Start the logging thread
     _beginthread(LogThread, 0, NULL);
 
@@ -211,7 +222,7 @@ int main()
 
     // Keep the program running
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (running && GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
