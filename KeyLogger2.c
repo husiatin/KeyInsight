@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
+#include "writelogs.c"
 
 // Constants
 #define DATA_SIZE 15
@@ -81,8 +82,13 @@ void performCalculations()
     float totalClicks = avgLeftClicks + avgRightClicks;
     float clickDifference = avgLeftClicks - avgRightClicks;
 
+    // Write results to .log file
+    writeResultsToLog(avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
+
     // Write results to YAML
     writeResultsToYaml(avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
+
+    
 }
 
 // Logging thread to handle data storage for every minute and calculations every 15 minutes
