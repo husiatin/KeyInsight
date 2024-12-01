@@ -107,7 +107,7 @@ void LogThread(void *param)
         DWORD currentTime = GetTickCount();
 
         // Check if a minute has passed
-        if (currentTime - lastLogTime >= ONE_MINUTE_MS)
+        if (currentTime - lastLogTime >= MINUTE_MS)
         {
             // Calculate average of keypress intervals
             metrics.keyPressIntervals[metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
