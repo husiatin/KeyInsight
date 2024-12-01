@@ -6,9 +6,10 @@
 #include "writelogs.c"
 
 // Constants
-#define DATA_SIZE 3
-#define ONE_MINUTE_MS 10000      // 10 sec
-#define FIFTEEN_MINUTES_MS 30000 // 30 sec
+#define DATA_SIZE 15
+#define MINUTE_MS 60000
+#define QUARTERH_MS 900000
+#define HOUR_MS 3600000
 
 // Data structure for metrics
 typedef struct
@@ -121,7 +122,7 @@ void LogThread(void *param)
             // Reset temporary counters
             keyPressIndex = 0;
 
-            // Update the cyclic buffer index
+            // Update array with FIFO principle
             metrics.currentIndex = (metrics.currentIndex + 1) % DATA_SIZE;
 
             // Mark buffer as full after one complete cycle
@@ -134,12 +135,15 @@ void LogThread(void *param)
             lastLogTime = currentTime;
         }
 
-        // Perform calculations every 15 minutes if buffer is full
-        if (currentTime - lastCalculationTime >= FIFTEEN_MINUTES_MS && isBufferFull)
+        // Reset array after 1 hour 
+        if (currentTime - lastCalculationTime >= QUARTERH_MS && isBufferFull)
         {
             performCalculations();
             lastCalculationTime = currentTime;
+        }
 
+        if (currentTime - lastCalculationTime >= HOUR_MS && isBufferFull)
+        {
             for (int i = 0; i < DATA_SIZE; i++)
             {
                 metrics.keyPressIntervals[i] = 0.0;
