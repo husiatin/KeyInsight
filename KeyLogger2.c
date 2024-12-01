@@ -5,14 +5,15 @@
 #include <stdlib.h>
 
 // Constants
-#define DATA_SIZE 15
-#define ONE_MINUTE_MS 60000
-#define FIFTEEN_MINUTES_MS 900000
+#define DATA_SIZE 3
+#define ONE_MINUTE_MS 10000
+#define FIFTEEN_MINUTES_MS 30000
 
 // Data structure for metrics
 typedef struct
 {
     float keyPressIntervals[DATA_SIZE];
+    float keyPressCounts[DATA_SIZE];
     float enterCounts[DATA_SIZE];
     float backspaceCounts[DATA_SIZE];
     float leftClickCounts[DATA_SIZE];
@@ -46,7 +47,7 @@ float calculateAverage(float *data, int size)
 }
 
 // Function to write results to YAML file
-void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float clickDifference)
+void writeResultsToYaml(float avgKeyPressIntervals, float avgKeyPresses, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float clickDifference)
 {
     FILE *file = fopen("metrics.yaml", "w");
     if (file == NULL)
@@ -57,6 +58,7 @@ void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBac
 
     // Write data in YAML format
     fprintf(file, "metrics:\n");
+    fprintf(file, "  average_keypress_interval_per_minute: %.2fs\n", avgKeyPressIntervals);
     fprintf(file, "  average_keypresses_per_minute: %.2f\n", avgKeyPresses);
     fprintf(file, "  average_enter_presses_per_minute: %.2f\n", avgEnterPresses);
     fprintf(file, "  average_backspace_presses_per_minute: %.2f\n", avgBackspacePresses);
@@ -71,7 +73,8 @@ void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBac
 void performCalculations()
 {
     // Calculate averages
-    float avgKeyPresses = calculateAverage(metrics.keyPressIntervals, DATA_SIZE);
+    float avgKeyPressIntervals = calculateAverage(metrics.keyPressIntervals, DATA_SIZE);
+    float avgKeyPresses = calculateAverage(metrics.keyPressCounts, DATA_SIZE);
     float avgEnterPresses = calculateAverage(metrics.enterCounts, DATA_SIZE);
     float avgBackspacePresses = calculateAverage(metrics.backspaceCounts, DATA_SIZE);
     float avgLeftClicks = calculateAverage(metrics.leftClickCounts, DATA_SIZE);
@@ -81,8 +84,11 @@ void performCalculations()
     float totalClicks = avgLeftClicks + avgRightClicks;
     float clickDifference = avgLeftClicks - avgRightClicks;
 
+    // Write results to .log file
+    writeResultsToLog(avgKeyPressIntervals, avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
+
     // Write results to YAML
-    writeResultsToYaml(avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
+    writeResultsToYaml(avgKeyPressIntervals, avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
 }
 
 // Logging thread to handle data storage for every minute and calculations every 15 minutes
@@ -105,6 +111,7 @@ void LogThread(void *param)
             metrics.keyPressIntervals[metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
 
             // Store data in the current index of metrics buffer
+            metrics.keyPressCounts[metrics.currentIndex] = metrics.keyPressCounts[metrics.currentIndex];
             metrics.enterCounts[metrics.currentIndex] = metrics.enterCounts[metrics.currentIndex];
             metrics.backspaceCounts[metrics.currentIndex] = metrics.backspaceCounts[metrics.currentIndex];
             metrics.leftClickCounts[metrics.currentIndex] = leftClickCount;
@@ -112,8 +119,8 @@ void LogThread(void *param)
 
             // Reset temporary counters
             keyPressIndex = 0;
-            leftClickCount = 0.0;
-            rightClickCount = 0.0;
+            //leftClickCount = 0.0;
+            //rightClickCount = 0.0;
 
             // Update the cyclic buffer index
             metrics.currentIndex = (metrics.currentIndex + 1) % DATA_SIZE;
@@ -129,10 +136,20 @@ void LogThread(void *param)
         }
 
         // Perform calculations every 15 minutes if buffer is full
-        if (currentTime - lastCalculationTime >= FIFTEEN_MINUTES_MS && isBufferFull)
+        if (currentTime - lastCalculationTime >= FIFTEEN_MINUTES_MS && isBufferFull) // should this be OR || if the buffers full and the time is not 15 minutes no more inputs will be tracked?
         {
             performCalculations();
             lastCalculationTime = currentTime;
+
+            //Reset values
+            metrics.keyPressIntervals[metrics.currentIndex] = 0.0;
+            metrics.keyPressCounts[metrics.currentIndex] = 0.0;
+            metrics.enterCounts[metrics.currentIndex] = 0.0;
+            metrics.backspaceCounts[metrics.currentIndex] = 0.0;
+            metrics.leftClickCounts[metrics.currentIndex] = 0.0;
+            metrics.rightClickCounts[metrics.currentIndex] = 0.0;
+            metrics.leftClickCounts[metrics.currentIndex] = 0.0;
+            metrics.rightClickCounts[metrics.currentIndex] = 0.0;
         }
 
         Sleep(100); // Reduce CPU usage
@@ -150,10 +167,13 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         KBDLLHOOKSTRUCT *pKeyInfo = (KBDLLHOOKSTRUCT *)lParam;
         DWORD currentTime = GetTickCount();
 
+        // Count all key presses
+        metrics.keyPressCounts[metrics.currentIndex]++;
+
         // Record interval times between keypresses
         if (lastKeyPressTime > 0)
         {
-            float interval = (float)(currentTime - lastKeyPressTime);
+            float interval = (float)(currentTime - lastKeyPressTime) / 1000;
             keyPressTimes[keyPressIndex++] = interval;
             lastKeyPressTime = currentTime;
         }
