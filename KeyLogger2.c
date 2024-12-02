@@ -56,6 +56,7 @@ float calculateAverage(float *data, int size)
     }
     return (size == 0) ? 0.0f : sum / (float)size;
 }
+// Where is funtion to wrire results in log ??
 
 // Function to write results to YAML file
 void writeResultsToYaml(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference)
@@ -86,12 +87,13 @@ void writeResultsToYaml(float avgKeyPresses, float avgKeyPressesInterval, float 
 void performCalculations()
 {
     // Calculate averages
-    float avgKeyPresses = calculateAverage(metrics.keyPressCounts, DATA_SIZE);
-    float avgKeyPressesInterval = calculateAverage(metrics.keyPressIntervals, DATA_SIZE);
-    float avgEnterPresses = calculateAverage(metrics.enterCounts, DATA_SIZE);
-    float avgBackspacePresses = calculateAverage(metrics.backspaceCounts, DATA_SIZE);
-    float avgLeftClicks = calculateAverage(metrics.leftClickCounts, DATA_SIZE);
-    float avgRightClicks = calculateAverage(metrics.rightClickCounts, DATA_SIZE);
+float avgKeyPresses = calculateAverage(metrics.data[KEY_PRESS_COUNTS], DATA_SIZE);
+float avgKeyPressesInterval = calculateAverage(metrics.data[KEY_PRESS_INTERVALS], DATA_SIZE);
+float avgEnterPresses = calculateAverage(metrics.data[ENTER_COUNTS], DATA_SIZE);
+float avgBackspacePresses = calculateAverage(metrics.data[BACKSPACE_COUNTS], DATA_SIZE);
+float avgLeftClicks = calculateAverage(metrics.data[LEFT_CLICK_COUNTS], DATA_SIZE); // pflichtenheft: nicht durchschnitt sondern anz an klicks ??
+float avgRightClicks = calculateAverage(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE);
+
 
     // Total mouse clicks and difference
     float totalClicks = avgLeftClicks + avgRightClicks;
@@ -118,7 +120,8 @@ void LogThread(void *param)
         if (currentTime - lastLogTime >= MINUTE_MS)
         {
             // Calculate average of keypress intervals
-            metrics.keyPressIntervals[metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
+            metrics.data[KEY_PRESS_INTERVALS][metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
+
             // -- following code does nothing
             /*
             metrics.keyPressCounts[metrics.currentIndex];
@@ -131,7 +134,7 @@ void LogThread(void *param)
             // new code: Store data in the current index of metrics buffer 
         	metrics.data[KEY_PRESS_COUNTS][metrics.currentIndex] = tempKeyPressCounts;
     		metrics.data[ENTER_COUNTS][metrics.currentIndex] = tempEnterCounts;
-   			metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
+   		metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
     		metrics.data[LEFT_CLICK_COUNTS][metrics.currentIndex] = tempLeftClickCounts;
     		metrics.data[RIGHT_CLICK_COUNTS][metrics.currentIndex] = tempRightClickCounts;
 
