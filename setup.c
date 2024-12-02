@@ -1,3 +1,6 @@
+// Contributers: Jannis Neuhaus, Andreas Lerch
+
+
 #define UNICODE
 #define _UNICODE
 
