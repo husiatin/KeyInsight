@@ -4,6 +4,8 @@
 #include <process.h>
 #include <stdlib.h>
 #include "writelogs.c"
+#include "writeyaml.h"
+
 
 // Constants
 #define DATA_SIZE 15
