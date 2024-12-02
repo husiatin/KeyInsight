@@ -3,51 +3,62 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
+#include "writelogs.c"
 
 // Constants
-#define DATA_SIZE 3            // Buffer size for 3 values
-#define ONE_MINUTE_MS 10000    // Simulated 1 minute = 10 seconds
-#define THREE_MINUTES_MS 30000 // Total runtime = 3 simulated minutes
+#define DATA_SIZE 15
+#define MINUTE_MS 60000
+#define QUARTERH_MS 900000
 
-// Data structure for metrics
+// new 2d Data structure for metrics
+
+typedef enum {
+    KEY_PRESS_INTERVALS,
+    KEY_PRESS_COUNTS,
+    ENTER_COUNTS,
+    BACKSPACE_COUNTS,
+    LEFT_CLICK_COUNTS,
+    RIGHT_CLICK_COUNTS,
+    METRIC_COUNT // Anzahl der Metriken
+} MetricType;
+
 typedef struct
 {
-    float keyPressIntervals[DATA_SIZE];
-    float enterCounts[DATA_SIZE];
-    float backspaceCounts[DATA_SIZE];
-    float leftClickCounts[DATA_SIZE];
-    float rightClickCounts[DATA_SIZE];
+    float data[METRIC_COUNT][DATA_SIZE]; // Metrik-Daten
     int currentIndex;
 } MetricsData;
 
 // Global variables
-MetricsData metrics = {0};
+MetricsData metrics = {0}; // Main buffer
 bool running = true;
 float keyPressTimes[1000] = {0}; // Buffer for keypress intervals
 int keyPressIndex = 0;
 bool isBufferFull = false; // Tracks if the buffer has been fully cycled once
-DWORD startTime;           // Tracks the start time for the test
+
+// last code did not store data correctly temporary counters are necessary
+float tempKeyPressCounts = 0;
+float tempEnterCounts = 0;
+float tempBackspaceCounts = 0;
+float tempLeftClickCounts = 0;
+float tempRightClickCounts = 0;
 
 // Function to calculate the average of an array
 float calculateAverage(float *data, int size)
 {
-    float sum = 0.0;
-    int count = 0;
+    float sum = 0.0f;
 
     for (int i = 0; i < size; i++)
     {
         if (data[i] > 0)
         {
             sum += data[i];
-            count++;
         }
     }
-
-    return (count == 0) ? 0.0 : sum / count;
+    return (size == 0) ? 0.0f : sum / (float)size;
 }
 
 // Function to write results to YAML file
-void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float clickDifference)
+void writeResultsToYaml(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference)
 {
     FILE *file = fopen("metrics.yaml", "w");
     if (file == NULL)
@@ -58,11 +69,14 @@ void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBac
 
     // Write data in YAML format
     fprintf(file, "metrics:\n");
-    fprintf(file, "  average_keypresses_per_minute: %.2f\n", avgKeyPresses);
-    fprintf(file, "  average_enter_presses_per_minute: %.2f\n", avgEnterPresses);
-    fprintf(file, "  average_backspace_presses_per_minute: %.2f\n", avgBackspacePresses);
-    fprintf(file, "  average_mouse_clicks_per_minute: %.2f\n", avgClicks);
-    fprintf(file, "  click_difference_per_minute: %.2f\n", clickDifference);
+    fprintf(file, "  average_keypresses_interval_per_15_minutes: %.2f\n", avgKeyPressesInterval);
+    fprintf(file, "  average_keypresses_per_15_minutes: %.2f\n", avgKeyPresses);
+    fprintf(file, "  average_enter_presses_per_15_minutes: %.2f\n", avgEnterPresses);
+    fprintf(file, "  average_backspace_presses_per_15_minutes: %.2f\n", avgBackspacePresses);
+    fprintf(file, "  average_mouse_clicks_per_15_minutes: %.2f\n", avgClicks);
+    fprintf(file, "  average_left_mouse_clicks_per_15_minutes: %.2f\n", avgLeftClicks);
+    fprintf(file, "  average_right_mouse_clicks_per_15_minutes: %.2f\n", avgRightClicks);
+    fprintf(file, "  click_difference_per_15_minutes: %.2f\n", clickDifference);
 
     fclose(file);
     printf("Results written to metrics.yaml\n");
@@ -72,7 +86,8 @@ void writeResultsToYaml(float avgKeyPresses, float avgEnterPresses, float avgBac
 void performCalculations()
 {
     // Calculate averages
-    float avgKeyPresses = calculateAverage(metrics.keyPressIntervals, DATA_SIZE);
+    float avgKeyPresses = calculateAverage(metrics.keyPressCounts, DATA_SIZE);
+    float avgKeyPressesInterval = calculateAverage(metrics.keyPressIntervals, DATA_SIZE);
     float avgEnterPresses = calculateAverage(metrics.enterCounts, DATA_SIZE);
     float avgBackspacePresses = calculateAverage(metrics.backspaceCounts, DATA_SIZE);
     float avgLeftClicks = calculateAverage(metrics.leftClickCounts, DATA_SIZE);
@@ -82,48 +97,54 @@ void performCalculations()
     float totalClicks = avgLeftClicks + avgRightClicks;
     float clickDifference = avgLeftClicks - avgRightClicks;
 
+    // Write results to .log file
+    writeResultsToLog(avgKeyPresses, avgKeyPressesInterval, avgEnterPresses, avgBackspacePresses, totalClicks, avgLeftClicks, avgRightClicks, clickDifference);
+
     // Write results to YAML
-    writeResultsToYaml(avgKeyPresses, avgEnterPresses, avgBackspacePresses, totalClicks, clickDifference);
+    writeResultsToYaml(avgKeyPresses, avgKeyPressesInterval, avgEnterPresses, avgBackspacePresses, totalClicks, avgLeftClicks, avgRightClicks, clickDifference);
 }
 
-// Logging thread to handle data storage and calculations
+// Logging thread to handle data storage for every minute and calculations every 15 minutes
 void LogThread(void *param)
 {
     DWORD lastLogTime = GetTickCount();
     DWORD lastCalculationTime = lastLogTime;
 
-    float leftClickCount = 0.0;
-    float rightClickCount = 0.0;
-
     while (running)
     {
         DWORD currentTime = GetTickCount();
 
-        // Stop the program after 3 simulated minutes
-        if (currentTime - startTime >= THREE_MINUTES_MS)
-        {
-            running = false;
-            break;
-        }
-
-        // Check if a simulated minute has passed
-        if (currentTime - lastLogTime >= ONE_MINUTE_MS)
+        // Check if a minute has passed
+        if (currentTime - lastLogTime >= MINUTE_MS)
         {
             // Calculate average of keypress intervals
             metrics.keyPressIntervals[metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
+            // -- following code does nothing
+            /*
+            metrics.keyPressCounts[metrics.currentIndex];
+            metrics.enterCounts[metrics.currentIndex];
+            metrics.backspaceCounts[metrics.currentIndex];;
+            metrics.leftClickCounts[metrics.currentIndex];
+            metrics.rightClickCounts[metrics.currentIndex];
+			*/
+            
+            // new code: Store data in the current index of metrics buffer 
+        	metrics.data[KEY_PRESS_COUNTS][metrics.currentIndex] = tempKeyPressCounts;
+    		metrics.data[ENTER_COUNTS][metrics.currentIndex] = tempEnterCounts;
+   			metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
+    		metrics.data[LEFT_CLICK_COUNTS][metrics.currentIndex] = tempLeftClickCounts;
+    		metrics.data[RIGHT_CLICK_COUNTS][metrics.currentIndex] = tempRightClickCounts;
 
-            // Store data in the current index of metrics buffer
-            metrics.enterCounts[metrics.currentIndex] = metrics.enterCounts[metrics.currentIndex];
-            metrics.backspaceCounts[metrics.currentIndex] = metrics.backspaceCounts[metrics.currentIndex];
-            metrics.leftClickCounts[metrics.currentIndex] = leftClickCount;
-            metrics.rightClickCounts[metrics.currentIndex] = rightClickCount;
+    		// Reset temporary counters
+    		tempKeyPressCounts = 0;
+    		tempEnterCounts = 0;
+    		tempBackspaceCounts = 0;
+    		tempLeftClickCounts = 0;
+    		tempRightClickCounts = 0;
 
-            // Reset temporary counters
             keyPressIndex = 0;
-            leftClickCount = 0.0;
-            rightClickCount = 0.0;
 
-            // Update the cyclic buffer index
+            // Update array with FIFO principle
             metrics.currentIndex = (metrics.currentIndex + 1) % DATA_SIZE;
 
             // Mark buffer as full after one complete cycle
@@ -136,8 +157,8 @@ void LogThread(void *param)
             lastLogTime = currentTime;
         }
 
-        // Perform calculations if buffer is full
-        if (isBufferFull && currentTime - lastCalculationTime >= THREE_MINUTES_MS)
+        // Reset array after 1 hour 
+        if (currentTime - lastCalculationTime >= QUARTERH_MS && isBufferFull)
         {
             performCalculations();
             lastCalculationTime = currentTime;
@@ -150,7 +171,7 @@ void LogThread(void *param)
 
 // Keyboard hook to track keypress events
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
+{ 
     static DWORD lastKeyPressTime = 0;
 
     if (nCode == HC_ACTION && wParam == WM_KEYDOWN)
@@ -158,10 +179,12 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         KBDLLHOOKSTRUCT *pKeyInfo = (KBDLLHOOKSTRUCT *)lParam;
         DWORD currentTime = GetTickCount();
 
+       tempKeyPressCounts++;
+
         // Record interval times between keypresses
         if (lastKeyPressTime > 0)
         {
-            float interval = (float)(currentTime - lastKeyPressTime);
+            float interval = (float)(currentTime - lastKeyPressTime) / 1000;
             keyPressTimes[keyPressIndex++] = interval;
             lastKeyPressTime = currentTime;
         }
@@ -173,11 +196,11 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
         // Count specific keys
         if (pKeyInfo->vkCode == VK_RETURN)
         {
-            metrics.enterCounts[metrics.currentIndex]++;
+            tempEnterCounts++;
         }
         else if (pKeyInfo->vkCode == VK_BACK)
         {
-            metrics.backspaceCounts[metrics.currentIndex]++;
+            tempBackspaceCounts++;
         }
     }
 
@@ -191,11 +214,11 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
     {
         if (wParam == WM_LBUTTONDOWN)
         {
-            metrics.leftClickCounts[metrics.currentIndex]++;
+            tempLeftClickCounts++;
         }
         else if (wParam == WM_RBUTTONDOWN)
         {
-            metrics.rightClickCounts[metrics.currentIndex]++;
+            tempRightClickCounts++;
         }
     }
     return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -203,9 +226,6 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 int main()
 {
-    // Track start time for testing
-    startTime = GetTickCount();
-
     // Start the logging thread
     _beginthread(LogThread, 0, NULL);
 
@@ -222,7 +242,7 @@ int main()
 
     // Keep the program running
     MSG msg;
-    while (running && GetMessage(&msg, NULL, 0, 0))
+    while (GetMessage(&msg, NULL, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -235,3 +255,4 @@ int main()
 
     return 0;
 }
+(
