@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build KeyLogger",
+        "type": "shell",
+        "command": "gcc",
+        "args": [
+          "-o",
+          "keylogger",
+          "main.c",
+          "calculations.c",
+          "metrics.c",
+          "writeyaml.c",
+          "writelog.c",
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"],
+        "detail": "Compile KeyLogger project"
+      }
+    ]
+  }
+  

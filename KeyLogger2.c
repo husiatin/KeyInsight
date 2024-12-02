@@ -3,8 +3,9 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
-#include "writelogs.c"
-#include "writeyaml.h"
+#include "calculations.h"
+#include "utils.h"
+
 
 
 // Constants
@@ -87,7 +88,7 @@ void LogThread(void *param)
             // new code: Store data in the current index of metrics buffer 
         	metrics.data[KEY_PRESS_COUNTS][metrics.currentIndex] = tempKeyPressCounts;
     		metrics.data[ENTER_COUNTS][metrics.currentIndex] = tempEnterCounts;
-   		metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
+   		    metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
     		metrics.data[LEFT_CLICK_COUNTS][metrics.currentIndex] = tempLeftClickCounts;
     		metrics.data[RIGHT_CLICK_COUNTS][metrics.currentIndex] = tempRightClickCounts;
 
@@ -211,4 +212,4 @@ int main()
 
     return 0;
 }
-(
+
