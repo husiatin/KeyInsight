@@ -1,4 +1,5 @@
-
+#include <stdio.h>
+#include "writeyaml.h"
 
 // Function to write results to YAML file
 void writeResultsToYaml(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference)
