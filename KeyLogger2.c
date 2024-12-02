@@ -9,7 +9,6 @@
 #define DATA_SIZE 15
 #define MINUTE_MS 60000
 #define QUARTERH_MS 900000
-#define HOUR_MS 3600000
 
 // Data structure for metrics
 typedef struct
@@ -99,9 +98,6 @@ void LogThread(void *param)
     DWORD lastLogTime = GetTickCount();
     DWORD lastCalculationTime = lastLogTime;
 
-    float leftClickCount = 0.0;
-    float rightClickCount = 0.0;
-
     while (running)
     {
         DWORD currentTime = GetTickCount();
@@ -113,11 +109,11 @@ void LogThread(void *param)
             metrics.keyPressIntervals[metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
 
             // Store data in the current index of metrics buffer
-            metrics.keyPressCounts[metrics.currentIndex] = metrics.keyPressCounts[metrics.currentIndex];
-            metrics.enterCounts[metrics.currentIndex] = metrics.enterCounts[metrics.currentIndex];
-            metrics.backspaceCounts[metrics.currentIndex] = metrics.backspaceCounts[metrics.currentIndex];
-            metrics.leftClickCounts[metrics.currentIndex] = metrics.leftClickCounts[metrics.currentIndex];
-            metrics.rightClickCounts[metrics.currentIndex] = metrics.rightClickCounts[metrics.currentIndex];
+            metrics.keyPressCounts[metrics.currentIndex];
+            metrics.enterCounts[metrics.currentIndex];
+            metrics.backspaceCounts[metrics.currentIndex];;
+            metrics.leftClickCounts[metrics.currentIndex];
+            metrics.rightClickCounts[metrics.currentIndex];
 
             // Reset temporary counters
             keyPressIndex = 0;
@@ -140,19 +136,6 @@ void LogThread(void *param)
         {
             performCalculations();
             lastCalculationTime = currentTime;
-        }
-
-        if (currentTime - lastCalculationTime >= HOUR_MS && isBufferFull)
-        {
-            for (int i = 0; i < DATA_SIZE; i++)
-            {
-                metrics.keyPressIntervals[i] = 0.0;
-                metrics.keyPressCounts[i] = 0.0;
-                metrics.enterCounts[i] = 0.0;
-                metrics.backspaceCounts[i] = 0.0;
-                metrics.leftClickCounts[i] = 0.0;
-                metrics.rightClickCounts[i] = 0.0;
-            }
         }
 
         Sleep(100); // Reduce CPU usage
