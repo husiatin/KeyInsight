@@ -9,7 +9,10 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-lole32",
+                "-lshell32",
+                "-luuid"
             ],
             "options": {
                 "cwd": "${fileDirname}"
