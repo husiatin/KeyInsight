@@ -11,6 +11,6 @@ tasks.json
     "-lshell32",
     "-luuid"
     "-mwindows"
-  ]
+   ]
 
 Um die setup.exe ausführen zu können werden Adminrechte benötigt.
