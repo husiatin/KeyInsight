@@ -19,7 +19,7 @@ void performCalculations()
     float avgRightClicks = calculateAverage(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE);
 
     //--new-- Funktion zur Berechnung von Tastenanschlägen pro Mausklick achtung im pflichtenheft steht pro stunde 
-    float keyPressPerClick = calculateSum(metrics.data[KEY_PRESS_COUNTS], DATA_SIZE) / ( calculateSum(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE) + calculateSum(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE) );
+    float keyPressPerClick = calculateSum(metrics.data[KEY_PRESS_COUNTS], DATA_SIZE) / ( calculateSum(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE) + calculateSum(metrics.data[LEFT_CLICK_COUNTS], DATA_SIZE) );
 
 
 
