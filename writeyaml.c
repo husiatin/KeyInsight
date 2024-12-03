@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "KeyLogger2.c"
+#include <windows.h>
 
 // Function to write results to YAML file
 void writeResultsToYaml(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference, float keyPressPerClick)
