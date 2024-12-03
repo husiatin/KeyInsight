@@ -1,6 +1,7 @@
 metrics:
-  average_keypresses_per_minute: 3869.78
-  average_enter_presses_per_minute: 7.88
-  average_backspace_presses_per_minute: 3.33
+  average_keypress_interval_per_minute: 0.00s
+  average_keypresses_per_minute: 50.00
+  average_enter_presses_per_minute: 6.00
+  average_backspace_presses_per_minute: 4.00
   average_mouse_clicks_per_minute: 0.00
   click_difference_per_minute: 0.00
