@@ -19,6 +19,7 @@ typedef enum {
     BACKSPACE_COUNTS,
     LEFT_CLICK_COUNTS,
     RIGHT_CLICK_COUNTS,
+
     METRIC_COUNT // Anzahl der Metriken
 } MetricType;
 
@@ -42,6 +43,21 @@ float tempEnterCounts = 0;
 float tempBackspaceCounts = 0;
 float tempLeftClickCounts = 0;
 float tempRightClickCounts = 0;
+
+// -new- helper fuction sum of an array for new calc TotalPressPerClick
+float calculateSum(float *data, int size)
+{
+    float sum = 0.0f;
+
+    for (int i = 0; i < size; i++)
+    {
+        if (data[i] > 0)
+        {
+            sum += data[i];
+        }
+    }
+    return sum;
+}
 
 // Function to calculate the average of an array
 float calculateAverage(float *data, int size)

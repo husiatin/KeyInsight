@@ -2,7 +2,7 @@
 #include <windows.h>
 
 // Function to write averages to a .log file
-void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference)
+void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float avgLeftClicks, float avgRightClicks, float clickDifference, float keyPressPerClick)
 {
     SYSTEMTIME lt;
 
@@ -25,6 +25,7 @@ void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float a
     fprintf(logFile, "Average left mouse clicks within 15 minutes: %.2f\n", avgLeftClicks);
     fprintf(logFile, "Average right mouse clicks within 15 minutes: %.2f\n", avgRightClicks);
     fprintf(logFile, "Difference between left and right clicks within 15 minutes: %.2f\n", clickDifference);
+    fprintf(logfile, "  Total_Keypresses_per_Click_per_15_minutes: %.2f\n", keyPressPerClick);
     fprintf(logFile, "-------------------\n");
 
     fclose(logFile); // Close the log file
