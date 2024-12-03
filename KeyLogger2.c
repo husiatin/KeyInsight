@@ -213,7 +213,7 @@ int main()
         running = false;
         return 1;
     }
-
+    
     // Keep the program running
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
