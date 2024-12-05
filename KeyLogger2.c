@@ -64,10 +64,9 @@ void setCollectionDuration() {
     int duration;
     scanf("%d", &duration);
     if (duration > 0) {
-        collectionDurationMinutes = duration;
-        printf("Data collection duration set to %d minutes.\n", collectionDurationMinutes);
+        printf("Data collection duration set to %d minutes.\n", duration);
     } else {
-        printf("Invalid duration. Keeping the previous value: %d minutes.\n", collectionDurationMinutes);
+        printf("Invalid duration. Keeping the previous value: %d minutes.\n", duration);
     }
 }
 
