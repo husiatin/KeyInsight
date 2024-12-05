@@ -1,7 +1,5 @@
-#include "writeyaml.h"
-#include "writelogs.h"
-#include "metrics.h"
-#include "utils.h"
+#include <stdio.h>
+#include <windows.h>
 
 // Array to store keyboard-press-per-mouse-click calculations
 #define HOUR_ARRAY_SIZE 4
