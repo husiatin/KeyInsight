@@ -7,6 +7,7 @@
 #include "writeyaml.c"
 #include "calculations.c"
 #include "metrics.h"
+#include "utils.h"
 
 // Constants
 #define DATA_SIZE 15
