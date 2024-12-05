@@ -2,7 +2,7 @@
 #include <windows.h>
 
 // Function to write averages to a .log file
-void writeResultsToLog(float avgKeyPresses, float avgEnterPresses, float avgBackspacePresses, float avgClicks, float clickDifference, float keyPressPerClick) {
+void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float totalClicks, float avgLeftClicks, float avgRightClicks, float clickDifference, float keyPressPerClick) {
     SYSTEMTIME st;
 
     GetSystemTime(&st);
@@ -16,9 +16,12 @@ void writeResultsToLog(float avgKeyPresses, float avgEnterPresses, float avgBack
     // Write data to the log file
     fprintf(logFile, "----- %02d.%02d.%02d %02d:%02d:%02d -----\n", st.wDayOfWeek, st.wMonth, st.wYear, st.wHour, st.wMinute, st.wSecond);
     fprintf(logFile, "Average keypresses per minute: %.2f\n", avgKeyPresses);
+    fprintf(logFile, "Average keypress-intervals per minute: %.2f\n", avgKeyPressesInterval);
     fprintf(logFile, "Average ENTER presses per minute: %.2f\n", avgEnterPresses);
     fprintf(logFile, "Average BACKSPACE presses per minute: %.2f\n", avgBackspacePresses);
-    fprintf(logFile, "Average mouse clicks per minute: %.2f\n", avgClicks);
+    fprintf(logFile, "Average left mouse-button clicks per minute: %.2f\n", avgLeftClicks);
+    fprintf(logFile, "Total click count per minute: %.2f\n", totalClicks);
+    fprintf(logFile, "Average left mouse-button clicks per minute: %.2f\n", avgRightClicks);
     fprintf(logFile, "Difference between left and right clicks: %.2f\n", clickDifference);
     fprintf(logFile, "Average keypresses per mouseclick in one hour: %.2f\n", keyPressPerClick);
     fprintf(logFile, "-------------------\n");
