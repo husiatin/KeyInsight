@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <windows.h>
+#include "metrics.h"
 
 // Function to perform calculations and store results
 void performCalculations()
