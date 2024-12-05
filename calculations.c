@@ -1,6 +1,17 @@
 #include <stdio.h>
 #include <windows.h>
 #include "metrics.h"
+#include "writeyaml.c"
+#include "writelogs.c"
+#include "utils.h"
+
+static float calculateSum(float *data, int size) {
+    float sum = 0.0;
+    for (int i = 0; i < size; i++) {
+        sum += data[i];
+    }
+    return sum;
+}
 
 // Function to perform calculations and store results
 void performCalculations()
@@ -29,16 +40,3 @@ void performCalculations()
     writeResultsToYaml(avgKeyPresses, avgKeyPressesInterval, avgEnterPresses, avgBackspacePresses, totalClicks, avgLeftClicks, avgRightClicks, clickDifference, keyPressPerClick);
 }
 
-float calculateSum(float *data, int size)
-{
-    float sum = 0.0f;
-
-    for (int i = 0; i < size; i++)
-    {
-        if (data[i] > 0)
-        {
-            sum += data[i];
-        }
-    }
-    return sum;
-}
