@@ -19,7 +19,6 @@ typedef enum {
     BACKSPACE_COUNTS,
     LEFT_CLICK_COUNTS,
     RIGHT_CLICK_COUNTS,
-
     METRIC_COUNT // Anzahl der Metriken
 } MetricType;
 
@@ -36,6 +35,8 @@ float keyPressTimes[1000] = {0}; // Buffer for keypress intervals
 int keyPressIndex = 0;
 bool isBufferFull = false; // Tracks if the buffer has been fully cycled once
 HANDLE mutex; // Mutex init for thread handling
+int collectionDurationMinutes = 15;
+DWORD endTime = 0;
 
 // last code did not store data correctly temporary counters are necessary
 float tempKeyPressCounts = 0;
@@ -43,21 +44,6 @@ float tempEnterCounts = 0;
 float tempBackspaceCounts = 0;
 float tempLeftClickCounts = 0;
 float tempRightClickCounts = 0;
-
-// -new- helper fuction sum of an array for new calc TotalPressPerClick
-float calculateSum(float *data, int size)
-{
-    float sum = 0.0f;
-
-    for (int i = 0; i < size; i++)
-    {
-        if (data[i] > 0)
-        {
-            sum += data[i];
-        }
-    }
-    return sum;
-}
 
 // Function to calculate the average of an array
 float calculateAverage(float *data, int size)
@@ -74,14 +60,15 @@ float calculateAverage(float *data, int size)
     return (size == 0) ? 0.0f : sum / (float)size;
 }
 
-// Function to prompt user for data collection duration
 void setCollectionDuration() {
     printf("Enter data collection duration in minutes: ");
     int duration;
     scanf("%d", &duration);
     if (duration > 0) {
         collectionDurationMinutes = duration;
-        printf("Data collection duration set to %d minutes.\n", collectionDurationMinutes);
+        DWORD currentTime = GetTickCount();
+        endTime = currentTime + (collectionDurationMinutes * MINUTE_MS);
+        printf("Data collection duration set to %d minutes. Program will stop after this time.\n", collectionDurationMinutes);
     } else {
         printf("Invalid duration. Keeping the previous value: %d minutes.\n", collectionDurationMinutes);
     }
@@ -92,10 +79,17 @@ void LogThread(void *param)
 {
     DWORD lastLogTime = GetTickCount();
     DWORD lastCalculationTime = lastLogTime;
-
+    
     while (running)
     {
         DWORD currentTime = GetTickCount();
+
+        // Stop the thread if the specified duration has passed
+        if (endTime > 0 && currentTime >= endTime) { // Only stops if endTime is set
+            printf("Data collection duration (%d minutes) has elapsed. Stopping program.\n", collectionDurationMinutes);
+            running = false; // Signal to stop the program
+            break;
+        }
 
         // Check if a minute has passed
         if (currentTime - lastLogTime >= MINUTE_MS)
