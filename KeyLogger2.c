@@ -35,6 +35,7 @@ float keyPressTimes[1000] = {0}; // Buffer for keypress intervals
 int keyPressIndex = 0;
 bool isBufferFull = false; // Tracks if the buffer has been fully cycled once
 HANDLE mutex; // Mutex init for thread handling
+int collectionDurationMinutes = 15;
 
 // last code did not store data correctly temporary counters are necessary
 float tempKeyPressCounts = 0;
@@ -64,9 +65,10 @@ void setCollectionDuration() {
     int duration;
     scanf("%d", &duration);
     if (duration > 0) {
-        printf("Data collection duration set to %d minutes.\n", duration);
+        collectionDurationMinutes = duration;
+        printf("Data collection duration set to %d minutes.\n", collectionDurationMinutes);
     } else {
-        printf("Invalid duration. Keeping the previous value: %d minutes.\n", duration);
+        printf("Invalid duration. Keeping the previous value: %d minutes.\n", collectionDurationMinutes);
     }
 }
 
@@ -79,6 +81,13 @@ void LogThread(void *param)
     while (running)
     {
         DWORD currentTime = GetTickCount();
+
+         // Stop the thread if the specified duration has passed
+        if (currentTime >= endTime) {
+            printf("Data collection duration (%d minutes) has elapsed. Stopping program.\n", collectionDurationMinutes);
+            running = false; // Signal to stop the program
+            break;
+        }
 
         // Check if a minute has passed
         if (currentTime - lastLogTime >= MINUTE_MS)
