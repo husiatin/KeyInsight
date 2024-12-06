@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
-#include "writelogs.c"
-#include "writeyaml.c"
 #include "calculations.c"
 #include "metrics.h"
 #include "utils.h"
