@@ -19,9 +19,9 @@ void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float a
     fprintf(logFile, "Average keypress-intervals per minute: %.2f\n", avgKeyPressesInterval);
     fprintf(logFile, "Average ENTER presses per minute: %.2f\n", avgEnterPresses);
     fprintf(logFile, "Average BACKSPACE presses per minute: %.2f\n", avgBackspacePresses);
-    fprintf(logFile, "Average left mouse-button clicks per minute: %.2f\n", avgLeftClicks);
     fprintf(logFile, "Total click count per minute: %.2f\n", totalClicks);
-    fprintf(logFile, "Average left mouse-button clicks per minute: %.2f\n", avgRightClicks);
+    fprintf(logFile, "Average left mouse-button clicks per minute: %.2f\n", avgLeftClicks);
+    fprintf(logFile, "Average right mouse-button clicks per minute: %.2f\n", avgRightClicks);
     fprintf(logFile, "Difference between left and right clicks: %.2f\n", clickDifference);
     fprintf(logFile, "Average keypresses per mouseclick in one hour: %.2f\n", keyPressPerClick);
     fprintf(logFile, "-------------------\n");
