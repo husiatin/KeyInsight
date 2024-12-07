@@ -3,30 +3,15 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
-#include "writelogs.c"
-#include "writeyaml.c"
 #include "calculations.c"
+#include "metrics.h"
+#include "utils.h"
+#include "utils.c"  // calc in main gelöscht
 
 // Constants
 #define DATA_SIZE 15
 #define MINUTE_MS 60000
 #define QUARTERH_MS 900000
-
-typedef enum {
-    KEY_PRESS_INTERVALS,
-    KEY_PRESS_COUNTS,
-    ENTER_COUNTS,
-    BACKSPACE_COUNTS,
-    LEFT_CLICK_COUNTS,
-    RIGHT_CLICK_COUNTS,
-    METRIC_COUNT // Anzahl der Metriken
-} MetricType;
-
-typedef struct
-{
-    float data[METRIC_COUNT][DATA_SIZE]; 
-    int currentIndex;
-} MetricsData;
 
 // Global variables
 MetricsData metrics = {0}; // Main buffer
@@ -45,20 +30,6 @@ float tempBackspaceCounts = 0;
 float tempLeftClickCounts = 0;
 float tempRightClickCounts = 0;
 
-// Function to calculate the average of an array
-float calculateAverage(float *data, int size)
-{
-    float sum = 0.0f;
-
-    for (int i = 0; i < size; i++)
-    {
-        if (data[i] > 0)
-        {
-            sum += data[i];
-        }
-    }
-    return (size == 0) ? 0.0f : sum / (float)size;
-}
 
 void setCollectionDuration() {
     printf("Enter data collection duration in minutes: ");
@@ -79,7 +50,7 @@ void LogThread(void *param)
 {
     DWORD lastLogTime = GetTickCount();
     DWORD lastCalculationTime = lastLogTime;
-    
+
     while (running)
     {
         DWORD currentTime = GetTickCount();
@@ -151,16 +122,20 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
         KBDLLHOOKSTRUCT *pKeyInfo = (KBDLLHOOKSTRUCT *)lParam;
 
         WaitForSingleObject(mutex, INFINITE); // Lock the mutex for the entire shared resource block
+        
+       
 
         if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-            if (pKeyInfo->vkCode == VK_CONTROL) {
+            if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {  // pKeyInfo->vkCode == VK_CONTROL
+                printf("Ctrl pressed\n");
                 ctrlPressed = true;
-            } else if (ctrlPressed && pKeyInfo->vkCode == 'K') {
+              if (ctrlPressed && (GetAsyncKeyState(VK_SHIFT) & 0x8000) && pKeyInfo->vkCode == 'K') {
+                printf("Ctrl + K pressed\n"); // Debug
                 ReleaseMutex(mutex); // Unlock before opening the dialog
                 setCollectionDuration(); // Trigger user prompt
                 WaitForSingleObject(mutex, INFINITE); // Re-lock after dialog
+                }
             }
-
             // Track key press intervals
             if (lastKeyPressTime > 0) {
                 DWORD currentTime = GetTickCount();
@@ -173,7 +148,7 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
             tempKeyPressCounts++; // Increment total keypress count
         } else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
-            if (pKeyInfo->vkCode == VK_CONTROL) {
+            if (GetAsyncKeyState(VK_CONTROL) & 0x8000) { // pKeyInfo->vkCode == VK_CONTROL
                 ctrlPressed = false;
             }
         }
@@ -245,4 +220,3 @@ int main()
 
     return 0;
 }
-
