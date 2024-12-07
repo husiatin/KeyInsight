@@ -3,14 +3,30 @@
 #include <stdbool.h>
 #include <process.h>
 #include <stdlib.h>
+#include "writelogs.c"
+#include "writeyaml.c"
 #include "calculations.c"
-#include "metrics.h"
-#include "utils.h"
 
 // Constants
 #define DATA_SIZE 15
 #define MINUTE_MS 60000
 #define QUARTERH_MS 900000
+
+typedef enum {
+    KEY_PRESS_INTERVALS,
+    KEY_PRESS_COUNTS,
+    ENTER_COUNTS,
+    BACKSPACE_COUNTS,
+    LEFT_CLICK_COUNTS,
+    RIGHT_CLICK_COUNTS,
+    METRIC_COUNT // Anzahl der Metriken
+} MetricType;
+
+typedef struct
+{
+    float data[METRIC_COUNT][DATA_SIZE]; 
+    int currentIndex;
+} MetricsData;
 
 // Global variables
 MetricsData metrics = {0}; // Main buffer
@@ -63,7 +79,7 @@ void LogThread(void *param)
 {
     DWORD lastLogTime = GetTickCount();
     DWORD lastCalculationTime = lastLogTime;
-
+    
     while (running)
     {
         DWORD currentTime = GetTickCount();
@@ -229,3 +245,4 @@ int main()
 
     return 0;
 }
+
