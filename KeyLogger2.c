@@ -7,6 +7,7 @@
 #include "metrics.h"
 #include "utils.h"
 #include "utils.c"  // calc in main gelöscht
+#include <conio.h>
 
 // Constants
 #define DATA_SIZE 15
@@ -22,6 +23,7 @@ bool isBufferFull = false; // Tracks if the buffer has been fully cycled once
 HANDLE mutex; // Mutex init for thread handling
 int collectionDurationMinutes = 15;
 DWORD endTime = 0;
+HANDLE hConsole = NULL;
 
 // last code did not store data correctly temporary counters are necessary
 float tempKeyPressCounts = 0;
@@ -30,6 +32,33 @@ float tempBackspaceCounts = 0;
 float tempLeftClickCounts = 0;
 float tempRightClickCounts = 0;
 
+//---
+// Funktion, um das Terminal zu starten
+void StartConsole() {
+    if (hConsole != NULL) {
+        // Konsole existiert bereits
+        return;
+    }
+
+    // Konsole erstellen
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout); // Ausgabe auf das Terminal umleiten
+    freopen("CONIN$", "r", stdin);  // Eingabe von der Konsole lesen
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+}
+
+// Funktion, um die Konsole zu schließen
+void StopConsole() {
+    if (hConsole == NULL) {
+        return;
+    }
+
+    // Konsole freigeben
+    FreeConsole();
+    hConsole = NULL;
+}
+//---
 
 void setCollectionDuration() {
     printf("Enter data collection duration in minutes: ");
@@ -40,6 +69,7 @@ void setCollectionDuration() {
         DWORD currentTime = GetTickCount();
         endTime = currentTime + (collectionDurationMinutes * MINUTE_MS);
         printf("Data collection duration set to %d minutes. Program will stop after this time.\n", collectionDurationMinutes);
+        StopConsole();
     } else {
         printf("Invalid duration. Keeping the previous value: %d minutes.\n", collectionDurationMinutes);
     }
@@ -57,7 +87,9 @@ void LogThread(void *param)
 
         // Stop the thread if the specified duration has passed
         if (endTime > 0 && currentTime >= endTime) { // Only stops if endTime is set
+            StartConsole();
             printf("Data collection duration (%d minutes) has elapsed. Stopping program.\n", collectionDurationMinutes);
+            StopConsole();
             running = false; // Signal to stop the program
             break;
         }
@@ -129,13 +161,17 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
             if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {  // pKeyInfo->vkCode == VK_CONTROL
                 printf("Ctrl pressed\n");
                 ctrlPressed = true;
-              if (ctrlPressed && (GetAsyncKeyState(VK_SHIFT) & 0x8000) && pKeyInfo->vkCode == 'K') {
-                printf("Ctrl + K pressed\n"); // Debug
+                //writeResultsToLog(1,1,1,1,1,1,1,1,42);
+                if (ctrlPressed && (GetAsyncKeyState(VK_SHIFT) & 0x8000) && pKeyInfo->vkCode == 'K') {
+                StartConsole();
+                printf("Ctrl + Shift + K pressed\n"); // Debug
                 ReleaseMutex(mutex); // Unlock before opening the dialog
                 setCollectionDuration(); // Trigger user prompt
                 WaitForSingleObject(mutex, INFINITE); // Re-lock after dialog
+                //writeResultsToLog(1,1,1,1,1,1,1,1,43);
                 }
             }
+
             // Track key press intervals
             if (lastKeyPressTime > 0) {
                 DWORD currentTime = GetTickCount();
