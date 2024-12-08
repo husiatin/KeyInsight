@@ -103,18 +103,18 @@ void LogThread(void *param)
             metrics.data[KEY_PRESS_INTERVALS][metrics.currentIndex] = calculateAverage(keyPressTimes, keyPressIndex);
             
             // new code: Store data in the current index of metrics buffer 
-        	metrics.data[KEY_PRESS_COUNTS][metrics.currentIndex] = tempKeyPressCounts;
-    		metrics.data[ENTER_COUNTS][metrics.currentIndex] = tempEnterCounts;
-   		    metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
-    		metrics.data[LEFT_CLICK_COUNTS][metrics.currentIndex] = tempLeftClickCounts;
-    		metrics.data[RIGHT_CLICK_COUNTS][metrics.currentIndex] = tempRightClickCounts;
+        	  metrics.data[KEY_PRESS_COUNTS][metrics.currentIndex] = tempKeyPressCounts;
+    		    metrics.data[ENTER_COUNTS][metrics.currentIndex] = tempEnterCounts;
+   		      metrics.data[BACKSPACE_COUNTS][metrics.currentIndex] = tempBackspaceCounts;
+    		    metrics.data[LEFT_CLICK_COUNTS][metrics.currentIndex] = tempLeftClickCounts;
+    		    metrics.data[RIGHT_CLICK_COUNTS][metrics.currentIndex] = tempRightClickCounts;
 
-    		// Reset temporary counters
-    		tempKeyPressCounts = 0;
-    		tempEnterCounts = 0;
-    		tempBackspaceCounts = 0;
-    		tempLeftClickCounts = 0;
-    		tempRightClickCounts = 0;
+    		    // Reset temporary counters
+    		    tempKeyPressCounts = 0;
+    		    tempEnterCounts = 0;
+    		    tempBackspaceCounts = 0;
+    		    tempLeftClickCounts = 0;
+    		    tempRightClickCounts = 0;
 
             keyPressIndex = 0;
 
@@ -240,7 +240,7 @@ int main()
         running = false;
         return 1;
     }
-
+    
     // Keep the program running
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
