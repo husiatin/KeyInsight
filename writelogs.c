@@ -3,9 +3,9 @@
 
 // Function to write averages to a .log file
 void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float avgEnterPresses, float avgBackspacePresses, float totalClicks, float avgLeftClicks, float avgRightClicks, float clickDifference, float keyPressPerClick) {
-    SYSTEMTIME st;
+    SYSTEMTIME lt;
 
-    GetSystemTime(&st);
+    GetLocalTime(&lt);
 
     FILE *logFile = fopen("metrics.log", "a"); // Open the log file in append mode will create the file if it does not exist
     if (logFile == NULL) {
@@ -14,7 +14,7 @@ void writeResultsToLog(float avgKeyPresses, float avgKeyPressesInterval, float a
     }
 
     // Write data to the log file
-    fprintf(logFile, "----- %02d.%02d.%02d %02d:%02d:%02d -----\n", st.wDayOfWeek, st.wMonth, st.wYear, st.wHour, st.wMinute, st.wSecond);
+    fprintf(logFile, "----- %02d.%02d.%02d %02d:%02d:%02d -----\n", lt.wDay, lt.wMonth, lt.wYear, lt.wHour, lt.wMinute, lt.wSecond);
     fprintf(logFile, "Average keypresses per minute: %.2f\n", avgKeyPresses);
     fprintf(logFile, "Average keypress-intervals per minute: %.2f\n", avgKeyPressesInterval);
     fprintf(logFile, "Average ENTER presses per minute: %.2f\n", avgEnterPresses);
