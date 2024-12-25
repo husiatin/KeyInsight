@@ -1,3 +1,5 @@
+// Contributers: Finn Jakob
+
 #include "utils.h"
 
 float calculateAverage(float *data, int size)

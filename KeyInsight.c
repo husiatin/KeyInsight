@@ -1,4 +1,4 @@
-//Andreas Lerch, Dustin Lojewski, Finn Jakob, Janine Patulada, Jannis Neuhaus, Kyrylo Zhulai
+// Contributers: Andreas Lerch, Dustin Lojewski, Finn Jakob, Janine Patulada, Jannis Neuhaus, Kyrylo Zhulai
 
 #include <windows.h>
 #include <stdio.h>

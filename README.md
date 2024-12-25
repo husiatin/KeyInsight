@@ -1,3 +1,4 @@
+Contributers: Andreas Lerch, Dustin Lojewski, Jannis Neuhaus
 # KeyInsight
 KeyInsight wir wollen die Weltherrschafft.
 

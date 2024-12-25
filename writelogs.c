@@ -1,3 +1,5 @@
+// Contributers: Dustin Lojewski, Finn Jakob
+
 #include <stdio.h>
 #include <windows.h>
 

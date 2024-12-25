@@ -1,3 +1,5 @@
+// Contributers: Finn Jakob, Janine Patulada, Kyrylo Zhulai
+
 #include <stdio.h>
 #include <windows.h>
 
