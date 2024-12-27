@@ -18,7 +18,7 @@ tasks.json
 
 Um die setup.exe ausführen zu können werden Adminrechte benötigt.
 Durch das Ausführen der setup.exe wird KeyInsight für den automatischen Start bei Hochfahren des Computer konfiguriert.
-Das KeyInsight beim nächsten Start des Computers ordnungsgemäß gestartet wird muss KeyInsight einmal ausgeführt werden.
+Zusätzlich muss KeyInsight einmalig ausgeführt werden, um den ordnungsgemäßen Autostart bei Hochfahren des Computers zu ermöglichen.
 
 Beim Doppelklick auf die KeyInsight.exe wird KeyInsight gestartet und läuft im Hintergrund.
 
