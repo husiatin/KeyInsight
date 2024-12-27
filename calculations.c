@@ -23,10 +23,10 @@ void performCalculations()
     float avgKeyPressesInterval = calculateAverage(metrics.data[KEY_PRESS_INTERVALS], DATA_SIZE);
     float avgEnterPresses = calculateAverage(metrics.data[ENTER_COUNTS], DATA_SIZE);
     float avgBackspacePresses = calculateAverage(metrics.data[BACKSPACE_COUNTS], DATA_SIZE);
-    float avgLeftClicks = calculateAverage(metrics.data[LEFT_CLICK_COUNTS], DATA_SIZE); // pflichtenheft: nicht durchschnitt sondern anz an klicks ??
+    float avgLeftClicks = calculateAverage(metrics.data[LEFT_CLICK_COUNTS], DATA_SIZE); 
     float avgRightClicks = calculateAverage(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE);
 
-    //--new-- Funktion zur Berechnung von Tastenanschlägen pro Mausklick achtung im pflichtenheft steht pro stunde 
+    //--new-- Funktion zur Berechnung von Tastenanschlägen pro Mausklick 
     float keyPressPerClick = calculateSum(metrics.data[KEY_PRESS_COUNTS], DATA_SIZE) / ( calculateSum(metrics.data[RIGHT_CLICK_COUNTS], DATA_SIZE) + calculateSum(metrics.data[LEFT_CLICK_COUNTS], DATA_SIZE) );
 
 
