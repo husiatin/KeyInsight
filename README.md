@@ -1,6 +1,8 @@
 Contributers: Andreas Lerch, Dustin Lojewski, Jannis Neuhaus
 # KeyInsight
-KeyInsight wir wollen die Weltherrschafft.
+Bei dem erstmaligen Ausführen der setup.exe und KeyInsight.exe kann es dazu kommen, dass Windows aufgrund des unbekannten Herausgebers verhindert die Anwendungen auszuführen.
+Beim Verhindern durch Windows wird eine Meldung angezeigt, diese kann durch drücken auf "Weitere Informationen" und dann "Trotzdem Ausführen" gelöst werden,
+wodurch dann auch die Anwendungen ordnungsgemäß ausgeführt werden.
 
 Um Kompilierung zu ermöglichen, diese Befehle der tasks.json hinzufügen.
 
@@ -16,6 +18,7 @@ tasks.json
 
 Um die setup.exe ausführen zu können werden Adminrechte benötigt.
 Durch das Ausführen der setup.exe wird KeyInsight für den automatischen Start bei Hochfahren des Computer konfiguriert.
+Das KeyInsight beim nächsten Start des Computers ordnungsgemäß gestartet wird muss KeyInsight einmal ausgeführt werden.
 
 Beim Doppelklick auf die KeyInsight.exe wird KeyInsight gestartet und läuft im Hintergrund.
 
