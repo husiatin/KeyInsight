@@ -8,8 +8,9 @@
 #include "calculations.c"
 #include "metrics.h"
 #include "utils.h"
-#include "utils.c"  // calc in main gelöscht
+#include "utils.c"  
 #include <conio.h>
+// #include "resource.h" - needed for Windows Message Box
 
 // Constants
 #define DATA_SIZE 15
@@ -35,28 +36,27 @@ float tempLeftClickCounts = 0;
 float tempRightClickCounts = 0;
 
 //---
-// Funktion, um das Terminal zu starten
+// Functions for starting and closing the terminal
 void StartConsole() {
     if (hConsole != NULL) {
-        // Konsole existiert bereits
+        // if console exists
         return;
     }
 
-    // Konsole erstellen
+    // Terminal creation
     AllocConsole();
-    freopen("CONOUT$", "w", stdout); // Ausgabe auf das Terminal umleiten
-    freopen("CONIN$", "r", stdin);  // Eingabe von der Konsole lesen
+    freopen("CONOUT$", "w", stdout); // Take the output
+    freopen("CONIN$", "r", stdin);  // Read the input
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
 }
 
-// Funktion, um die Konsole zu schließen
 void StopConsole() {
     if (hConsole == NULL) {
         return;
     }
 
-    // Konsole freigeben
+    // Release console
     FreeConsole();
     hConsole = NULL;
 }
@@ -76,6 +76,65 @@ void setCollectionDuration() {
         printf("Invalid duration. Keeping the previous value: %d minutes.\n", collectionDurationMinutes);
     }
 }
+
+//The following three functions are in a beta-state, they were included as an outlook to future addtions, in specific a Windows Message Box as Input-Handler 
+
+// This version of setCollectionDuration() is needed for the future usage of message boxes 
+// void setCollectionDuration() {
+//     char input[32];
+//
+//     if (GetInputDialog("Enter data collection duration in minutes:", input, sizeof(input))) {
+//         int duration = atoi(input);
+//         if (duration > 0) {
+//             collectionDurationMinutes = duration;
+//             DWORD currentTime = GetTickCount();
+//             endTime = currentTime + (collectionDurationMinutes * MINUTE_MS);
+//             MessageBox(NULL, "Data collection duration set successfully.", "Info", MB_OK | MB_ICONINFORMATION);
+//         } else {
+//             MessageBox(NULL, "Invalid duration. Keeping the previous value.", "Error", MB_OK | MB_ICONERROR);
+//         }
+//     }
+// }
+
+// Helper function to display input dialog
+// bool GetInputDialog(char* prompt, char* output, int outputSize) {
+//     char input[32] = {0};
+
+//     // Dialog aufrufen
+//     if (DialogBoxParam(
+//             GetModuleHandle(NULL),
+//             MAKEINTRESOURCE(IDD_INPUT_DIALOG),
+//             NULL,
+//             InputDialogProc, // Statt Lambda die Callback-Funktion
+//             (LPARAM)input) == IDOK) {
+
+//         strncpy(output, input, outputSize - 1);
+//         return true;
+//     }
+//     return false;
+// }
+
+// Callback function for Window-Call with Input-Field in normal Windows-API scheme
+// INT_PTR CALLBACK InputDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+//     switch (uMsg) {
+//     case WM_INITDIALOG:
+//         // Initialisierungen, falls erforderlich
+//         return TRUE;
+
+//     case WM_COMMAND:
+//         if (LOWORD(wParam) == IDOK) {
+//             GetDlgItemText(hwndDlg, IDC_EDIT_INPUT, (LPSTR)lParam, 32);
+//             EndDialog(hwndDlg, IDOK);
+//             return TRUE;
+//         } else if (LOWORD(wParam) == IDCANCEL) {
+//             EndDialog(hwndDlg, IDCANCEL);
+//             return TRUE;
+//         }
+//         break;
+//     }
+
+//     return FALSE;
+// }
 
 // Logging thread to handle data storage for every minute and calculations every 15 minutes
 void LogThread(void *param)
